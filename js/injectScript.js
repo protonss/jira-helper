@@ -8,6 +8,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
         this.SPRINTDATA_CACHE_KEY = "sprintData_";
         this.SPRINTDATA_GRAPH_CACHE_KEY = "sprintDataGraph_";
+        this.URL_JIRA = document.location.origin;
 
         $.balloon.defaults.css = {
             "minWidth": "20px",
@@ -106,7 +107,7 @@ if (typeof JiraBurnDown == 'undefined') {
                 return;
             }
 
-            var querieSprint = "https://jira.vmcommerce.intra/rest/greenhopper/1.0/xboard/work/allData.json?rapidViewId=" + me.queryString.rapidView;
+            var querieSprint = me.URL_JIRA + "/rest/greenhopper/1.0/xboard/work/allData.json?rapidViewId=" + me.queryString.rapidView;
 
             $.get(querieSprint, function (data) {
 
@@ -257,6 +258,8 @@ if (typeof JiraBurnDown == 'undefined') {
         },
 
         mergeSprintData: function (storiesData, tasksData, sprintsData) {
+            
+            var me = this;
 
             var sprintData = {};
             sprintData.sprintName = sprintsData.name;
@@ -273,7 +276,7 @@ if (typeof JiraBurnDown == 'undefined') {
                     if (tasksData[s].parentId == storiesData[i].id) {
 
                         $.ajax({
-                            url: "https://jira.vmcommerce.intra/rest/api/2/issue/" + tasksData[s].id + "?fields=created,updated,parent,resolutiondate,customfield_10008,summary,status",
+                            url: me.URL_JIRA + "/rest/api/2/issue/" + tasksData[s].id + "?fields=created,updated,parent,resolutiondate,customfield_10008,summary,status",
                             async: false,
                             success: function (data) {
                                 if (data) {
