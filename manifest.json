@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "version": "1.0",
+    "version": "1.0.1",
     "name": "Jira Helper",
     "description": "BurnDown e Gráfico de Pizza baseado em Tasks.",
     "update_url": "https://clients2.google.com/service/update2/crx",
