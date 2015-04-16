@@ -1,10 +1,10 @@
-if (typeof JiraBurnDown == 'undefined') {
+if (typeof JiraHelper == 'undefined') {
 
-    var JiraBurnDown = {};
+    var JiraHelper = {};
 
-    var jb = JiraBurnDown;
+    var jb = JiraHelper;
 
-    JiraBurnDown.PageManager = function () {
+    JiraHelper.BurnDown = function () {
 
         this.SPRINTDATA_CACHE_KEY = "sprintData_";
         this.SPRINTDATA_GRAPH_CACHE_KEY = "sprintDataGraph_";
@@ -42,7 +42,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
     };
 
-    JiraBurnDown.PageManager.prototype = {
+    JiraHelper.BurnDown.prototype = {
 
         init: function () {
 
@@ -91,8 +91,7 @@ if (typeof JiraBurnDown == 'undefined') {
             $("#create_link").after('<a id="burndown-toggle" class="aui-button aui-button-primary aui-style">BurnDown...</a>');
             $("#burndown-toggle").after('<a id="burndown-pie-toggle" class="aui-button aui-button-primary aui-style">Pie...</a>');
             $("#burndown-pie-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update</a>');
-
-
+            
 
         },
 
@@ -100,7 +99,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
             var me = this;
 
-            me.sprintData = JiraBurnDown.Util.getValueFromLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView);
+            me.sprintData = JiraHelper.Util.getValueFromLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView);
 
             if (me.sprintData) {
                 callback();
@@ -153,7 +152,7 @@ if (typeof JiraBurnDown == 'undefined') {
                 }
 
                 me.sprintData = me.mergeSprintData(storiesData, tasksData, data.sprintsData.sprints[0]);
-                JiraBurnDown.Util.saveValueToLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView, me.sprintData);
+                JiraHelper.Util.saveValueToLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView, me.sprintData);
 
                 callback();
 
@@ -166,18 +165,18 @@ if (typeof JiraBurnDown == 'undefined') {
             var me = this;
             var sprintData = me.sprintData;
 
-            me.sprintDataGraph = JiraBurnDown.Util.getValueFromLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView);
+            me.sprintDataGraph = JiraHelper.Util.getValueFromLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView);
 
             if (me.sprintDataGraph) {
                 callback();
                 return;
             }
 
-            var totalDates = JiraBurnDown.Util.calculateDate(sprintData.startDate, sprintData.endDate);
+            var totalDates = JiraHelper.Util.calculateDate(sprintData.startDate, sprintData.endDate);
             var initDate = new Date(sprintData.startDate);
 
             var categorieDate = [];
-            categorieDate.push(JiraBurnDown.Util.convertDateString(initDate));
+            categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
             var seriePointsDeal = {};
             seriePointsDeal.name = "Velocidade Ideal";
@@ -200,7 +199,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
                 if (initDate.getDay() != 6 && initDate.getDay() != 0) {
 
-                    categorieDate.push(JiraBurnDown.Util.convertDateString(initDate));
+                    categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
                     pointsDone -= me.findTasksDoneByDay(initDate);
                     serieTasksDone.data.push(pointsDone.toFixed(2) * 1);
@@ -223,7 +222,7 @@ if (typeof JiraBurnDown == 'undefined') {
             data.pieSeries = me.createPieSeries();
 
             me.sprintDataGraph = data;
-            JiraBurnDown.Util.saveValueToLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView, data);
+            JiraHelper.Util.saveValueToLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView, data);
 
             callback();
 
@@ -557,8 +556,8 @@ if (typeof JiraBurnDown == 'undefined') {
 
                 $(this).html("Update...");
 
-                JiraBurnDown.Util.resetLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView);
-                JiraBurnDown.Util.resetLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView);
+                JiraHelper.Util.resetLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView);
+                JiraHelper.Util.resetLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView);
 
                 me.createSprintData(function () {
                     me.createSprintDataGraph(function () {
@@ -576,7 +575,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
     }
 
-    JiraBurnDown.Util = {
+    JiraHelper.Util = {
 
         calculateDate: function (date1, date2) {
 
@@ -631,7 +630,7 @@ if (typeof JiraBurnDown == 'undefined') {
 
 $(document).ready(function () {
 
-    var jr = new JiraBurnDown.PageManager();
+    var jr = new JiraHelper.BurnDown();
     jr.init();
 
 
