@@ -1,0 +1,20 @@
+css_balloon: {
+    min-width: 20px;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid rgb(119, 119, 119);
+    box-shadow: rgb(85, 85, 85) 4px 4px 4px;
+    color: rgb(102, 102, 102);
+    z-index: 32767;
+    text-align: left;
+    visibility: visible;
+    position: absolute;
+    top: 46px;
+    left: 358.625px;
+    display: block;
+    background-color: rgb(255, 255, 255);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
+}
