@@ -60,8 +60,12 @@ if (typeof JiraHelper == 'undefined') {
 
             if (this.validatePage()) {
                 this.createBotton();
-                this.createSprintData(function () {
-                    me.createSprintDataGraph(function () {
+                this.createSprintData(function (err) {
+                    if (err) {
+                        console.log("Error:", err);
+                        return;
+                    }
+                    me.createSprintDataGraph(function (err) {
                         me.createEventClick();
                     });
                 });
@@ -91,7 +95,7 @@ if (typeof JiraHelper == 'undefined') {
             $("#create_link").after('<a id="burndown-toggle" class="aui-button aui-button-primary aui-style">BurnDown...</a>');
             $("#burndown-toggle").after('<a id="burndown-pie-toggle" class="aui-button aui-button-primary aui-style">Pie...</a>');
             $("#burndown-pie-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update</a>');
-            
+
 
         },
 
@@ -109,6 +113,12 @@ if (typeof JiraHelper == 'undefined') {
             var querieSprint = me.URL_JIRA + "/rest/greenhopper/1.0/xboard/work/allData.json?rapidViewId=" + me.queryString.rapidView;
 
             $.get(querieSprint, function (data) {
+
+                if (!data.sprintsData || !data.sprintsData.sprints || data.sprintsData.sprints.length == 0) {
+                    callback("Invalid Sprint Data");
+                    return;
+                }
+
 
                 var issues = data.issuesData.issues;
 
@@ -257,7 +267,7 @@ if (typeof JiraHelper == 'undefined') {
         },
 
         mergeSprintData: function (storiesData, tasksData, sprintsData) {
-            
+
             var me = this;
 
             var sprintData = {};
