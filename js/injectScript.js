@@ -50,8 +50,10 @@ if (typeof JiraHelper == 'undefined') {
 
             console.log("BurnDown Init");
 
-            this.chartIsVisible = false;
-            this.chartPieIsVisible = false;
+            this.chartPointsIsVisible = false;
+            this.chartTasksIsVisible = false;
+            this.chartPizzaIsVisible = false;
+            
             this.updating = false;
 
             //this.isMonitoring = false;
@@ -207,7 +209,7 @@ if (typeof JiraHelper == 'undefined') {
             var serieTasksDone = {};
             serieTasksDone.name = "Velocidade da Sprint - Tasks";
             serieTasksDone.data = [];
-            serieTasksDone.data.push(sprintData.totalEstimate);
+            serieTasksDone.data.push(sprintData.tasks.length);
 
             //For variables
             var pointsToDone = sprintData.totalEstimate;
@@ -447,7 +449,7 @@ if (typeof JiraHelper == 'undefined') {
                     plotBands: [{
                         color: '#fffa84',
                         from: 0,
-                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                        to: JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date())
                     }]
                 },
                 yAxis: {
@@ -501,7 +503,7 @@ if (typeof JiraHelper == 'undefined') {
                     plotBands: [{
                         color: '#fffa84',
                         from: 0,
-                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                        to: JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date())
                     }]
                 },
                 yAxis: {
@@ -592,6 +594,12 @@ if (typeof JiraHelper == 'undefined') {
             $('#burndown-points-toggle').click(function (e) {
 
                 if (me.updating) return false;
+                
+                if(me.chartPointsIsVisible){
+                  $(this).hideBalloon();
+                    me.chartPointsIsVisible = false;
+                    return false;
+                }
 
                 $('#burndown-tasks-toggle').hideBalloon();
                 $('#burndown-points-toggle').hideBalloon();
@@ -605,7 +613,7 @@ if (typeof JiraHelper == 'undefined') {
                     className: "css_balloon"
                 });
                 me.showGraphHighChartPoints("chart_points");
-                me.chartIsVisible = true;
+                me.chartPointsIsVisible = true;
 
 
                 return false;
@@ -622,6 +630,12 @@ if (typeof JiraHelper == 'undefined') {
             $('#burndown-tasks-toggle').click(function (e) {
 
                 if (me.updating) return false;
+                
+                if(me.chartTasksIsVisible){
+                  $(this).hideBalloon();
+                    me.chartTasksIsVisible = false;
+                    return false;
+                }
 
                 $('#burndown-tasks-toggle').hideBalloon();
                 $('#burndown-points-toggle').hideBalloon();
@@ -635,6 +649,7 @@ if (typeof JiraHelper == 'undefined') {
                 });
 
                 me.showGraphHighChartTasks("chart_tasks");
+                me.chartTasksIsVisible = true;
 
 
                 return false;
@@ -652,6 +667,12 @@ if (typeof JiraHelper == 'undefined') {
             $('#burndown-pizza-toggle').click(function (e) {
 
                 if (me.updating) return false;
+                
+                if(me.chartPizzaIsVisible){
+                  $(this).hideBalloon();
+                    me.chartPizzaIsVisible = false;
+                    return false;
+                }
 
                 $('#burndown-tasks-toggle').hideBalloon();
                 $('#burndown-points-toggle').hideBalloon();
@@ -665,7 +686,7 @@ if (typeof JiraHelper == 'undefined') {
                 });
 
                 me.showGraphHighChartPizza("chart_pizza");
-
+                me.chartPizzaIsVisible = true;
 
                 return false;
             });
