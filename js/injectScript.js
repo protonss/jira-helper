@@ -92,9 +92,10 @@ if (typeof JiraHelper == 'undefined') {
 
         createBotton: function () {
 
-            $("#create_link").after('<a id="burndown-toggle" class="aui-button aui-button-primary aui-style">BurnDown...</a>');
-            $("#burndown-toggle").after('<a id="burndown-pie-toggle" class="aui-button aui-button-primary aui-style">Pie...</a>');
-            $("#burndown-pie-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update</a>');
+            $("#create_link").after('<a id="burndown-points-toggle" class="aui-button aui-button-primary aui-style">Points...</a>');
+            $("#burndown-points-toggle").after('<a id="burndown-tasks-toggle" class="aui-button aui-button-primary aui-style">Tasks...</a>');
+            $("#burndown-tasks-toggle").after('<a id="burndown-pizza-toggle" class="aui-button aui-button-primary aui-style">Pizza...</a>');
+            $("#burndown-pizza-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update...</a>');
 
 
         },
@@ -189,45 +190,75 @@ if (typeof JiraHelper == 'undefined') {
             categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
             var seriePointsDeal = {};
-            seriePointsDeal.name = "Velocidade Ideal";
+            seriePointsDeal.name = "Velocidade Ideal - Points";
             seriePointsDeal.data = [];
             seriePointsDeal.data.push(sprintData.totalEstimate);
 
+            var seriePointsDone = {};
+            seriePointsDone.name = "Velocidade da Sprint - Points";
+            seriePointsDone.data = [];
+            seriePointsDone.data.push(sprintData.totalEstimate);
+
+            var serieTasksDeal = {};
+            serieTasksDeal.name = "Velocidade Ideal - Tasks";
+            serieTasksDeal.data = [];
+            serieTasksDeal.data.push(sprintData.tasks.length);
+
             var serieTasksDone = {};
-            serieTasksDone.name = "Velocidade da Sprint";
+            serieTasksDone.name = "Velocidade da Sprint - Tasks";
             serieTasksDone.data = [];
             serieTasksDone.data.push(sprintData.totalEstimate);
 
             //For variables
             var pointsToDone = sprintData.totalEstimate;
             var pointsDone = sprintData.totalEstimate;
-            var dayOfSpring = 10;
+            
+            var tasksToDone = sprintData.tasks.length;
+            var tasksDone = sprintData.tasks.length;
+
+            var dayOfSpring = totalDates;
 
             for (var d = 1; d < totalDates; d++) {
 
                 initDate = new Date(initDate.setDate(initDate.getDate() + 1));
 
-                if (initDate.getDay() != 6 && initDate.getDay() != 0) {
+                //if (initDate.getDay() != 6 && initDate.getDay() != 0) {
 
                     categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
-                    pointsDone -= me.findTasksDoneByDay(initDate);
-                    serieTasksDone.data.push(pointsDone.toFixed(2) * 1);
+                    var resumeDone = me.findTasksDoneByDay(initDate)
+
+                    pointsDone -= resumeDone.points;
+                    seriePointsDone.data.push(pointsDone.toFixed(2) * 1);
+
+                    tasksDone -= resumeDone.totalTasks;
+                    serieTasksDone.data.push(tasksDone.toFixed(2) * 1);
 
                     dayOfSpring--;
+                
                     pointsToDone = pointsToDone - (pointsToDone / dayOfSpring) || 0;
                     seriePointsDeal.data.push(pointsToDone.toFixed(2) * 1);
+                    
+                    tasksToDone = tasksToDone - (tasksToDone / dayOfSpring) || 0;
+                    serieTasksDeal.data.push(tasksToDone.toFixed(2) * 1);
+                    
 
-                }
+                //}
 
             }
 
             var data = {};
             data.ploteLines = {};
             data.ploteLines.categories = categorieDate;
-            data.ploteLines.series = [];
-            data.ploteLines.series.push(seriePointsDeal);
-            data.ploteLines.series.push(serieTasksDone);
+            data.ploteLines.points = [];
+
+            data.ploteLines.points.push(seriePointsDeal);
+            data.ploteLines.points.push(seriePointsDone);
+
+            data.ploteLines.tasks = [];
+
+            data.ploteLines.tasks.push(serieTasksDeal);
+            data.ploteLines.tasks.push(serieTasksDone);
 
             data.pieSeries = me.createPieSeries();
 
@@ -330,6 +361,7 @@ if (typeof JiraHelper == 'undefined') {
             var me = this;
 
             var pointsDoneByDay = 0;
+            var totalTasks = 0;
 
             for (var t in me.sprintData.tasks) {
 
@@ -343,6 +375,7 @@ if (typeof JiraHelper == 'undefined') {
                     if (sDateC == sDateR) {
 
                         pointsDoneByDay += me.sprintData.tasks[t].estimate;
+                        totalTasks++;
 
                     }
 
@@ -350,7 +383,10 @@ if (typeof JiraHelper == 'undefined') {
 
             }
 
-            return pointsDoneByDay;
+            return {
+                points: pointsDoneByDay,
+                totalTasks: totalTasks
+            }
 
         },
 
@@ -393,34 +429,13 @@ if (typeof JiraHelper == 'undefined') {
 
         },
 
-        showGraphC3: function () {
+        showGraphHighChartPoints: function (elementName) {
 
             var me = this;
 
-            var chart = c3.generate({
-                data: {
-                    x: 'x',
-                    columns: me.sprintDataGraph
-                },
-                axis: {
-                    x: {
-                        type: 'timeseries',
-                        tick: {
-                            format: '%d/%m'
-                        }
-                    }
-                }
-            });
-
-        },
-
-        showGraphHighChart: function () {
-
-            var me = this;
-
-            $("#chart").highcharts({
+            $("#" + elementName).highcharts({
                 title: {
-                    text: 'Tasks BurnDown',
+                    text: 'Points BurnDown',
                     x: -20 //center
                 },
                 subtitle: {
@@ -428,7 +443,12 @@ if (typeof JiraHelper == 'undefined') {
                     x: -20
                 },
                 xAxis: {
-                    categories: me.sprintDataGraph.ploteLines.categories
+                    categories: me.sprintDataGraph.ploteLines.categories,
+                    plotBands: [{
+                        color: '#fffa84',
+                        from: 0,
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                    }]
                 },
                 yAxis: {
                     title: {
@@ -457,17 +477,71 @@ if (typeof JiraHelper == 'undefined') {
                     verticalAlign: 'bottom',
                     borderWidth: 0
                 },
-                series: me.sprintDataGraph.ploteLines.series
+                series: me.sprintDataGraph.ploteLines.points
 
             });
 
         },
 
-        showGraphHighChartPie: function () {
+        showGraphHighChartTasks: function (elementName) {
 
             var me = this;
 
-            $("#chart_pie").highcharts({
+            $("#" + elementName).highcharts({
+                title: {
+                    text: 'Tasks BurnDown',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: 'Source: JIRA',
+                    x: -20
+                },
+                xAxis: {
+                    categories: me.sprintDataGraph.ploteLines.categories,
+                    plotBands: [{
+                        color: '#fffa84',
+                        from: 0,
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                    }]
+                },
+                yAxis: {
+                    title: {
+                        text: 'Tasks'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: true
+                    }
+                },
+                tooltip: {
+                    valueSuffix: ' tasks'
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    borderWidth: 0
+                },
+                series: me.sprintDataGraph.ploteLines.tasks
+
+            });
+
+        },
+
+        showGraphHighChartPizza: function (elementName) {
+
+            var me = this;
+
+            $("#" + elementName).highcharts({
                 chart: {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
@@ -499,64 +573,111 @@ if (typeof JiraHelper == 'undefined') {
 
         createEventClick: function () {
 
+            this.createEventClickPoints();
+
+            this.createEventClickTasks();
+
+            this.createEventClickPizza();
+
+            this.createEventClickUpdate();
+
+        },
+        
+        createEventClickPoints: function () {
+
             var me = this;
 
-            $('#burndown-toggle').html("BurnDown");
-            $('#burndown-toggle').click(function (e) {
+            $('#burndown-points-toggle').html("Points");
+
+            $('#burndown-points-toggle').click(function (e) {
 
                 if (me.updating) return false;
 
-                if (me.chartPieIsVisible) {
-                    me.chartPieIsVisible = false;
-                    $("#burndown-pie-toggle").hideBalloon();
-                }
+                $('#burndown-tasks-toggle').hideBalloon();
+                $('#burndown-points-toggle').hideBalloon();
+                $('#burndown-pizza-toggle').hideBalloon();
 
-                if (me.chartIsVisible) {
-                    me.chartIsVisible = false;
-                    $(this).hideBalloon();
-                } else {
+                var content = '<div id="chart_points_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_points">Carregando...</div><div><a id="burndown-update" href="javascript:updateBurnDown()">Atualizar</a></div>';
 
-                    var content = '<div id="chart_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart">Carregando...</div><div><a id="burndown-update" href="javascript:updateBurnDown()">Atualizar</a></div>';
+                $(this).showBalloon({
+                    position: "bottom",
+                    contents: content,
+                    className: "css_balloon"
+                });
+                me.showGraphHighChartPoints("chart_points");
+                me.chartIsVisible = true;
 
-                    $(this).showBalloon({
-                        position: "bottom",
-                        contents: content,
-                        className: "css_balloon"
-                    });
-                    me.showGraphHighChart();
-                    me.chartIsVisible = true;
-                }
 
                 return false;
             });
 
-            $('#burndown-pie-toggle').html("Pie");
-            $('#burndown-pie-toggle').click(function (e) {
+        },
+
+        createEventClickTasks: function () {
+            
+            var me = this;
+
+            $('#burndown-tasks-toggle').html("Tasks");
+
+            $('#burndown-tasks-toggle').click(function (e) {
 
                 if (me.updating) return false;
 
-                if (me.chartIsVisible) {
-                    me.chartIsVisible = false;
-                    $("#burndown-toggle").hideBalloon();
-                }
+                $('#burndown-tasks-toggle').hideBalloon();
+                $('#burndown-points-toggle').hideBalloon();
+                $('#burndown-pizza-toggle').hideBalloon();
 
-                if (me.chartPieIsVisible) {
-                    me.chartPieIsVisible = false;
-                    $(this).hideBalloon();
-                } else {
+                var content = '<div id="chart_tasks_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_tasks">Carregando...</div>';
+                $(this).showBalloon({
+                    position: "bottom",
+                    contents: content,
+                    className: "css_balloon"
+                });
 
-                    var content = '<div id="chart_pie_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_pie">Carregando...</div>';
-                    $(this).showBalloon({
-                        position: "bottom",
-                        contents: content,
-                        className: "css_balloon"
-                    });
-                    me.showGraphHighChartPie();
-                    me.chartPieIsVisible = true;
-                }
+                me.showGraphHighChartTasks("chart_tasks");
+
 
                 return false;
             });
+
+        },
+
+        
+        createEventClickPizza: function () {
+            
+            var me = this;
+
+            $('#burndown-pizza-toggle').html("Pizza");
+
+            $('#burndown-pizza-toggle').click(function (e) {
+
+                if (me.updating) return false;
+
+                $('#burndown-tasks-toggle').hideBalloon();
+                $('#burndown-points-toggle').hideBalloon();
+                $('#burndown-pizza-toggle').hideBalloon();
+
+                var content = '<div id="chart_pizza_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_pizza">Carregando...</div>';
+                $(this).showBalloon({
+                    position: "bottom",
+                    contents: content,
+                    className: "css_balloon"
+                });
+
+                me.showGraphHighChartPizza("chart_pizza");
+
+
+                return false;
+            });
+
+        },
+        
+
+        createEventClickUpdate: function () {
+            
+            var me = this;
+
+            $('#burndown-update-toggle').html("Update");
 
             $("#burndown-update-toggle").click(function (e) {
 
@@ -580,10 +701,10 @@ if (typeof JiraHelper == 'undefined') {
 
             });
 
-
         }
 
     }
+
 
     JiraHelper.Util = {
 
