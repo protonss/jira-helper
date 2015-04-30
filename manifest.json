@@ -1,34 +1,38 @@
 {
-    "manifest_version": 2,
-    "version": "1.2.0",
-    "name": "Jira Helper",
-    "short_name": "Jira Helper",
-    "description": "BurnDown e Gráfico de Pizza baseado em Tasks.",
-    "update_url": "https://clients2.google.com/service/update2/crx",
-    "icons": {
-        "16": "images/jira_icon_0.png",
-        "48": "images/jira_icon_0.png",
-        "128": "images/jira_icon_0.png"
-    },
-    "permissions": ["storage"],
-    "web_accessible_resources": [
-      "images/jira_icon_0.png"
-   ],
-    "content_scripts": [
-        {
-            "js": [
-            "bower_components/jquery/jquery.min.js",
-            "js/jquery.balloon.min.js",
-            "bower_components/highcharts/highcharts.js",
-            "js/injectScript.js"
-         ],
-            "css": ["css/inject.css"],
-            "matches": [
-            "*://*/*",
-            "file://*/*"
-         ]
-      }
-   ],
-    "permissions": ["http://*/*", "https://*/*"],
-    "offline_enabled": false
+  "manifest_version": 2,
+  "version": "1.2.0",
+  "name": "Jira Helper",
+  "short_name": "Jira Helper",
+  "description": "BurnDown e Gráfico de Pizza baseado em Tasks.",
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "icons": {
+    "16": "images/jira_icon_0.png",
+    "48": "images/jira_icon_0.png",
+    "128": "images/jira_icon_0.png"
+  },
+  "permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources": [
+    "images/jira_icon_0.png"
+  ],
+  "content_scripts": [
+    {
+      "js": [
+        "bower_components/jquery/jquery.min.js",
+        "js/jquery.balloon.min.js",
+        "bower_components/highcharts/highcharts.js",
+        "js/injectScript.js"
+      ],
+      "css": [
+        "css/inject.css"
+      ],
+      "matches": [
+        "*://*/*",
+        "file://*/*"
+      ]
+    }
+  ],
+  "offline_enabled": false
 }
