@@ -49,7 +49,7 @@ if (typeof JiraHelper == 'undefined') {
             var me = this;
 
             console.log("BurnDown Init");
-            
+
             this.chartStoriesIsVisible = false;
             this.chartPointsIsVisible = false;
             this.chartTasksIsVisible = false;
@@ -62,7 +62,7 @@ if (typeof JiraHelper == 'undefined') {
             this.sprintDataGraph = null;
 
             if (this.validatePage()) {
-                this.createBotton();
+                this.createButton();
                 this.createSprintData(function (err) {
                     if (err) {
                         console.log("Error:", err);
@@ -93,15 +93,23 @@ if (typeof JiraHelper == 'undefined') {
 
         },
 
-        createBotton: function () {
-            
-            $("#create_link").after('<a id="burndown-stories-toggle" class="aui-button aui-button-primary aui-style">Stories...</a>');
-            $("#burndown-stories-toggle").after('<a id="burndown-points-toggle" class="aui-button aui-button-primary aui-style">Points...</a>');
-            $("#burndown-points-toggle").after('<a id="burndown-tasks-toggle" class="aui-button aui-button-primary aui-style">Tasks...</a>');
-            $("#burndown-tasks-toggle").after('<a id="burndown-pizza-toggle" class="aui-button aui-button-primary aui-style">Pizza...</a>');
-            $("#burndown-pizza-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update...</a>');
-            
+        createButton: function () {
+            var menuList = '<li>\
+              <a class="aui-nav-link aui-dropdown2-trigger" id="jirahelper-section" aria-haspopup="true" aria-owns="jirahelper-section-content">Jira Helper</a>\
+              <div id="jirahelper-section-content" class="aui-dropdown2 aui-style-default">\
+                <div class="aui-dropdown2-section">\
+                  <ul class="aui-list-truncate">\
+                    <li><a id="jirahelper-stories-menu" class="request-portal" href="#">Stories</a></li>\
+                    <li><a id="jirahelper-tasks-menu" class="request-portal" href="#">Tasks</a></li>\
+                    <li><a id="jirahelper-points-menu" class="request-portal" href="#">Points</a></li>\
+                    <li><a id="jirahelper-pizza-menu" class="request-portal" href="#">Pizza</a></li>\
+                    <li><a id="jirahelper-update-menu" class="request-portal" href="#">Update</a></li>\
+                  </ul>\
+                </div>\
+              </div>\
+            </li>';
 
+            $("#create-menu").before(menuList);
         },
 
         createSprintData: function (callback) {
@@ -282,7 +290,7 @@ if (typeof JiraHelper == 'undefined') {
 
             data.ploteLines.tasks.push(serieTasksDeal);
             data.ploteLines.tasks.push(serieTasksDone);
-            
+
             data.ploteLines.stories = [];
             data.ploteLines.stories.push(serieStoriesDeal);
             data.ploteLines.stories.push(serieStoriesDone);
@@ -565,7 +573,7 @@ if (typeof JiraHelper == 'undefined') {
             me.sprintData.resumePerStatus = resumeStatus;
 
         },
-        
+
         showGraphHighChartStories: function (elementName) {
 
             var me = this;
@@ -766,7 +774,7 @@ if (typeof JiraHelper == 'undefined') {
         },
 
         createEventClick: function () {
-            
+
             this.createEventClickStories();
 
             this.createEventClickPoints();
@@ -783,9 +791,7 @@ if (typeof JiraHelper == 'undefined') {
 
             var me = this;
 
-            $('#burndown-stories-toggle').html("Stories");
-
-            $('#burndown-stories-toggle').click(function (e) {
+            $('#jirahelper-stories-menu').click(function (e) {
 
                 if (me.updating) return false;
 
@@ -811,14 +817,12 @@ if (typeof JiraHelper == 'undefined') {
             });
 
         },
-        
+
         createEventClickPoints: function () {
 
             var me = this;
 
-            $('#burndown-points-toggle').html("Points");
-
-            $('#burndown-points-toggle').click(function (e) {
+            $('#jirahelper-tasks-menu').click(function (e) {
 
                 if (me.updating) return false;
 
@@ -849,9 +853,7 @@ if (typeof JiraHelper == 'undefined') {
 
             var me = this;
 
-            $('#burndown-tasks-toggle').html("Tasks");
-
-            $('#burndown-tasks-toggle').click(function (e) {
+            $('#jirahelper-points-menu').click(function (e) {
 
                 if (me.updating) return false;
 
@@ -884,9 +886,7 @@ if (typeof JiraHelper == 'undefined') {
 
             var me = this;
 
-            $('#burndown-pizza-toggle').html("Pizza");
-
-            $('#burndown-pizza-toggle').click(function (e) {
+            $('#jirahelper-pizza-menu').click(function (e) {
 
                 if (me.updating) return false;
 
@@ -919,9 +919,7 @@ if (typeof JiraHelper == 'undefined') {
 
             var me = this;
 
-            $('#burndown-update-toggle').html("Update");
-
-            $("#burndown-update-toggle").click(function (e) {
+            $("#jirahelper-update-menu").click(function (e) {
 
                 var meClick = this;
 
@@ -953,11 +951,11 @@ if (typeof JiraHelper == 'undefined') {
             me.chartPizzaIsVisible = false;
             me.chartPointsIsVisible = false;
             me.chartTasksIsVisible = false;
-            
-            $('#burndown-stories-toggle').hideBalloon();
-            $('#burndown-tasks-toggle').hideBalloon();
-            $('#burndown-points-toggle').hideBalloon();
-            $('#burndown-pizza-toggle').hideBalloon();
+
+            $('#jirahelper-stories-menu').hideBalloon();
+            $('#jirahelper-tasks-menu').hideBalloon();
+            $('#jirahelper-points-menu').hideBalloon();
+            $('#jirahelper-pizza-menu').hideBalloon();
 
         }
 
