@@ -49,7 +49,8 @@ if (typeof JiraHelper == 'undefined') {
             var me = this;
 
             console.log("BurnDown Init");
-
+            
+            this.chartStoriesIsVisible = false;
             this.chartPointsIsVisible = false;
             this.chartTasksIsVisible = false;
             this.chartPizzaIsVisible = false;
@@ -93,12 +94,13 @@ if (typeof JiraHelper == 'undefined') {
         },
 
         createBotton: function () {
-
-            $("#create_link").after('<a id="burndown-points-toggle" class="aui-button aui-button-primary aui-style">Points...</a>');
+            
+            $("#create_link").after('<a id="burndown-stories-toggle" class="aui-button aui-button-primary aui-style">Stories...</a>');
+            $("#burndown-stories-toggle").after('<a id="burndown-points-toggle" class="aui-button aui-button-primary aui-style">Points...</a>');
             $("#burndown-points-toggle").after('<a id="burndown-tasks-toggle" class="aui-button aui-button-primary aui-style">Tasks...</a>');
             $("#burndown-tasks-toggle").after('<a id="burndown-pizza-toggle" class="aui-button aui-button-primary aui-style">Pizza...</a>');
             $("#burndown-pizza-toggle").after('<a id="burndown-update-toggle" class="aui-button aui-button-primary aui-style">Update...</a>');
-
+            
 
         },
 
@@ -122,8 +124,8 @@ if (typeof JiraHelper == 'undefined') {
                     return;
                 }
 
-
                 var issues = data.issuesData.issues;
+                var status = data.columnsData.columns;
 
                 var storiesData = [],
                     tasksData = [];
@@ -138,9 +140,15 @@ if (typeof JiraHelper == 'undefined') {
                             id: s.id,
                             summary: s.summary,
                             done: s.done,
-                            estimate: s.estimateStatistic.statFieldValue.value,
+                            typeId: s.typeId,
                             statusName: s.statusName,
-                            subtasks: []
+                            statusId: s.statusId,
+                            estimate: s.estimateStatistic.statFieldValue.value,
+                            parentId: s.parentId || null,
+                            subtasks: [],
+                            created: null,
+                            updated: null,
+                            resolutiondate: null
 
                         })
 
@@ -150,9 +158,12 @@ if (typeof JiraHelper == 'undefined') {
                             id: s.id,
                             summary: s.summary,
                             done: s.done,
+                            typeId: s.typeId,
                             statusName: s.statusName,
+                            statusId: s.statusId,
                             estimate: 0,
                             parentId: s.parentId,
+                            subtasks: [],
                             created: null,
                             updated: null,
                             resolutiondate: null
@@ -164,7 +175,11 @@ if (typeof JiraHelper == 'undefined') {
 
                 }
 
-                me.sprintData = me.mergeSprintData(storiesData, tasksData, data.sprintsData.sprints[0]);
+                me.sprintData = me.mergeSprintData(storiesData, tasksData, data);
+
+                //Create Resume per Status
+                me.createResumeStatus();
+
                 JiraHelper.Util.saveValueToLocalStorage(me.SPRINTDATA_CACHE_KEY + me.queryString.rapidView, me.sprintData);
 
                 callback();
@@ -191,32 +206,30 @@ if (typeof JiraHelper == 'undefined') {
             var categorieDate = [];
             categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
-            var seriePointsDeal = {};
-            seriePointsDeal.name = "Velocidade Ideal - Points";
-            seriePointsDeal.data = [];
-            seriePointsDeal.data.push(sprintData.totalEstimate);
+            //By Points
+            var seriePoints = me.createSeriePoints(sprintData.totalEstimate);
+            var seriePointsDeal = seriePoints.deal;
+            var seriePointsDone = seriePoints.done;
 
-            var seriePointsDone = {};
-            seriePointsDone.name = "Velocidade da Sprint - Points";
-            seriePointsDone.data = [];
-            seriePointsDone.data.push(sprintData.totalEstimate);
+            //By Tasks
+            var serieTasks = me.createSerieTasks(sprintData.tasks.length)
+            var serieTasksDeal = serieTasks.deal;
+            var serieTasksDone = serieTasks.done;
 
-            var serieTasksDeal = {};
-            serieTasksDeal.name = "Velocidade Ideal - Tasks";
-            serieTasksDeal.data = [];
-            serieTasksDeal.data.push(sprintData.tasks.length);
-
-            var serieTasksDone = {};
-            serieTasksDone.name = "Velocidade da Sprint - Tasks";
-            serieTasksDone.data = [];
-            serieTasksDone.data.push(sprintData.tasks.length);
+            //By Stories
+            var serieStories = me.createSerieStories(sprintData.totalEstimate);
+            var serieStoriesDeal = serieStories.deal;
+            var serieStoriesDone = serieStories.done;
 
             //For variables
-            var pointsToDone = sprintData.totalEstimate;
-            var pointsDone = sprintData.totalEstimate;
+            var _pointsDeal = sprintData.totalEstimate;
+            var _pointsDone = sprintData.totalEstimate;
 
-            var tasksToDone = sprintData.tasks.length;
-            var tasksDone = sprintData.tasks.length;
+            var _tasksDone = sprintData.tasks.length;
+            var _tasksDeal = sprintData.tasks.length;
+
+            var _storiesDeal = sprintData.totalEstimate;
+            var _storiesDone = sprintData.totalEstimate;
 
             var dayOfSpring = totalDates;
 
@@ -228,22 +241,30 @@ if (typeof JiraHelper == 'undefined') {
 
                 categorieDate.push(JiraHelper.Util.convertDateString(initDate));
 
-                var resumeDone = me.findTasksDoneByDay(initDate)
-
-                pointsDone -= resumeDone.points || 0;
-                seriePointsDone.data.push(pointsDone.toFixed(2) * 1);
-
-                tasksDone -= resumeDone.totalTasks || 0;
-                serieTasksDone.data.push(tasksDone.toFixed(2) * 1);
-
                 dayOfSpring--;
 
-                pointsToDone = pointsToDone - (pointsToDone / dayOfSpring) || 0;
-                seriePointsDeal.data.push(pointsToDone.toFixed(2) * 1);
+                var resumeDone = me.findTasksDoneByDay(initDate)
 
-                tasksToDone = tasksToDone - (tasksToDone / dayOfSpring) || 0;
-                serieTasksDeal.data.push(tasksToDone.toFixed(2) * 1);
+                //By Points
+                _pointsDone -= resumeDone.taskPoints || 0;
+                seriePointsDone.data.push(_pointsDone.toFixed(2) * 1);
 
+                _pointsDeal = _pointsDeal - (_pointsDeal / dayOfSpring) || 0;
+                seriePointsDeal.data.push(_pointsDeal.toFixed(2) * 1);
+
+                //By Tasks
+                _tasksDone -= resumeDone.totalTasks || 0;
+                serieTasksDone.data.push(_tasksDone.toFixed(2) * 1);
+
+                _tasksDeal = _tasksDeal - (_tasksDeal / dayOfSpring) || 0;
+                serieTasksDeal.data.push(Math.round(_tasksDeal));
+
+                //By Storie
+                _storiesDone -= resumeDone.storyPoints || 0;
+                serieStoriesDone.data.push(_storiesDone.toFixed(2) * 1);
+
+                _storiesDeal = _storiesDeal - (_storiesDeal / dayOfSpring) || 0;
+                serieStoriesDeal.data.push(Math.round(_storiesDeal));
 
                 //}
 
@@ -261,6 +282,10 @@ if (typeof JiraHelper == 'undefined') {
 
             data.ploteLines.tasks.push(serieTasksDeal);
             data.ploteLines.tasks.push(serieTasksDone);
+            
+            data.ploteLines.stories = [];
+            data.ploteLines.stories.push(serieStoriesDeal);
+            data.ploteLines.stories.push(serieStoriesDone);
 
             data.pieSeries = me.createPieSeries();
 
@@ -271,27 +296,73 @@ if (typeof JiraHelper == 'undefined') {
 
         },
 
+        createSeriePoints: function (estimate) {
+
+            return {
+                deal: {
+                    name: "Velocidade Ideal - Points",
+                    data: [estimate]
+                },
+                done: {
+                    name: "Velocidade da Sprint - Points",
+                    data: [estimate]
+                }
+            };
+
+        },
+
+        createSerieTasks: function (totalTasks) {
+
+            return {
+                deal: {
+                    name: "Velocidade Ideal - Stories",
+                    data: [totalTasks]
+                },
+                done: {
+                    name: "Velocidade da Sprint - Stories",
+                    data: [totalTasks]
+                }
+            };
+
+
+        },
+
+        createSerieStories: function (estimate) {
+
+            return {
+                deal: {
+                    name: "Velocidade Ideal - Stories",
+                    data: [estimate]
+                },
+                done: {
+                    name: "Velocidade da Sprint - Stories",
+                    data: [estimate]
+                }
+            };
+
+        },
+
+
+
         createPieSeries: function () {
 
             var me = this;
 
-            var resume = me.getResumeSprintPoints();
+            var resume = me.sprintData.resumePerStatus;
+
+            var dataResume = [];
+
+            for (var r in resume) {
+
+                dataResume.push([
+                resume[r].name, resume[r].percent
+                ]);
+
+            };
 
             var series = [{
                 type: 'pie',
-                name: 'Sprint Points',
-                data: [
-                    ['BackLog', (resume.pointsInBackLog / me.sprintData.totalEstimate) * 100],
-                    ['In Progress', (resume.pointsInProgress / me.sprintData.totalEstimate) * 100],
-                    ['Verify', (resume.pointsInVerify / me.sprintData.totalEstimate) * 100],
-                    {
-                        name: 'Done',
-                        y: (resume.pointsInDone / me.sprintData.totalEstimate) * 100,
-                        sliced: true,
-                        selected: true
-                    }
-
-                ]
+                data: dataResume
             }];
 
             return series;
@@ -299,19 +370,52 @@ if (typeof JiraHelper == 'undefined') {
 
         },
 
-        mergeSprintData: function (storiesData, tasksData, sprintsData) {
+        createStatus: function (statusData) {
+
+            var status = []
+
+            for (var s in statusData) {
+
+                status.push({
+                    id: statusData[s].statusIds[0],
+                    name: statusData[s].name
+                });
+
+            }
+
+            return status;
+
+        },
+
+        mergeSprintData: function (storiesData, tasksData, data) {
 
             var me = this;
+            var sprintsData = data.sprintsData.sprints[0];
 
             var sprintData = {};
             sprintData.sprintName = sprintsData.name;
             sprintData.totalEstimate = 0;
-            sprintData.estories = storiesData;
+            sprintData.stories = storiesData;
             sprintData.tasks = [];
             sprintData.startDate = new Date(Date.parse(sprintsData.startDate.split(" ")[0]));
             sprintData.endDate = new Date(Date.parse(sprintsData.endDate.split(" ")[0]));
+            sprintData.status = me.createStatus(data.columnsData.columns);
 
             for (var i in storiesData) {
+
+                $.ajax({
+                    url: me.URL_JIRA + "/rest/api/2/issue/" + storiesData[i].id + "?fields=created,updated,parent,resolutiondate,customfield_10008,summary,status",
+                    async: false,
+                    success: function (data) {
+                        if (data) {
+                            storiesData[i].created = data.fields.created;
+                            storiesData[i].updated = data.fields.updated;
+                            if (data.fields.resolutiondate) {
+                                storiesData[i].resolutiondate = data.fields.resolutiondate;
+                            }
+                        }
+                    }
+                });
 
                 for (var s in tasksData) {
 
@@ -332,9 +436,19 @@ if (typeof JiraHelper == 'undefined') {
                         });
 
                         storiesData[i].subtasks.push(tasksData[s]);
-                        sprintData.tasks.push(tasksData[s])
+                        sprintData.tasks.push(tasksData[s]);
 
                     }
+
+                }
+
+                if (storiesData[i].subtasks.length == 0) {
+
+                    var newTask = JiraHelper.Util.clone(storiesData[i]);
+                    newTask.typeId = "5";
+                    newTask.subtasks = [];
+                    storiesData[i].subtasks.push(newTask);
+                    sprintData.tasks.push(newTask);
 
                 }
 
@@ -363,20 +477,24 @@ if (typeof JiraHelper == 'undefined') {
             var me = this;
 
             var pointsDoneByDay = 0;
+            var storyPointDoneByDay = 0;
             var totalTasks = 0;
+            var totalStories = 0;
+
+            var paramDate = initDate.getDate() + "/" + initDate.getMonth();
 
             for (var t in me.sprintData.tasks) {
 
-                var sDateC = initDate.getDate() + "/" + initDate.getMonth();
+                var currentTask = me.sprintData.tasks[t];
 
-                if (me.sprintData.tasks[t].resolutiondate) {
+                if (currentTask.resolutiondate) {
 
-                    var rDate = new Date(me.sprintData.tasks[t].resolutiondate);
-                    var sDateR = rDate.getDate() + "/" + rDate.getMonth();
+                    var convertDate = new Date(currentTask.resolutiondate);
+                    var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
 
-                    if (sDateC == sDateR) {
+                    if (paramDate == currentDate) {
 
-                        pointsDoneByDay += me.sprintData.tasks[t].estimate;
+                        pointsDoneByDay += currentTask.estimate;
                         totalTasks++;
 
                     }
@@ -385,49 +503,121 @@ if (typeof JiraHelper == 'undefined') {
 
             }
 
+            for (var s in me.sprintData.stories) {
+
+                var currentStory = me.sprintData.stories[s];
+
+                if (currentStory.resolutiondate) {
+
+                    var convertDate = new Date(currentStory.resolutiondate);
+                    var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
+
+                    if (paramDate == currentDate) {
+
+                        storyPointDoneByDay += currentStory.estimate;
+                        totalStories++;
+
+                    }
+
+                }
+
+            }
+
+
             return {
-                points: pointsDoneByDay,
+                storyPoints: storyPointDoneByDay,
+                taskPoints: pointsDoneByDay,
+                totalStories: totalStories,
                 totalTasks: totalTasks
             }
 
         },
 
-        getResumeSprintPoints: function () {
+        createResumeStatus: function () {
 
             var me = this;
 
-            var pointsInDone = 0;
-            var pointsInProgress = 0;
-            var pointsInVerify = 0;
-            var pointsInBackLog = 0;
+            var estimateTotal = 0;
 
-            for (var t in me.sprintData.tasks) {
+            var resumeStatus = [];
 
+            for (var s in me.sprintData.status) {
 
-                if (me.sprintData.tasks[t].statusName == "Done") {
-                    pointsInDone += me.sprintData.tasks[t].estimate || 0;
+                for (var t in me.sprintData.tasks) {
+
+                    if (me.sprintData.tasks[t].statusId == me.sprintData.status[s].id) {
+                        estimateTotal += me.sprintData.tasks[t].estimate || 0;
+                    }
+
                 }
 
-                if (me.sprintData.tasks[t].statusName == "Backlog") {
-                    pointsInBackLog += me.sprintData.tasks[t].estimate || 0;
-                }
+                resumeStatus.push({
+                    name: me.sprintData.status[s].name,
+                    estimate: estimateTotal.toFixed(2),
+                    percent: (estimateTotal.toFixed(2) / me.sprintData.totalEstimate) * 100
 
-                if (me.sprintData.tasks[t].statusName == "In Progress") {
-                    pointsInProgress += me.sprintData.tasks[t].estimate || 0;
-                }
+                });
 
-                if (me.sprintData.tasks[t].statusName == "Verify") {
-                    pointsInVerify += me.sprintData.tasks[t].estimate || 0;
-                }
+                estimateTotal = 0;
 
             }
 
-            return {
-                pointsInBackLog: pointsInBackLog.toFixed(2),
-                pointsInProgress: pointsInProgress.toFixed(2),
-                pointsInVerify: pointsInVerify.toFixed(2),
-                pointsInDone: pointsInDone.toFixed(2)
-            };
+            me.sprintData.resumePerStatus = resumeStatus;
+
+        },
+        
+        showGraphHighChartStories: function (elementName) {
+
+            var me = this;
+
+            $("#" + elementName).highcharts({
+                title: {
+                    text: 'Story BurnDown',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: 'Source: JIRA',
+                    x: -20
+                },
+                xAxis: {
+                    categories: me.sprintDataGraph.ploteLines.categories,
+                    plotBands: [{
+                        color: '#fffa84',
+                        from: 0,
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                    }]
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Story Points'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: true
+                    }
+                },
+                tooltip: {
+                    valueSuffix: ' points'
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    borderWidth: 0
+                },
+                series: me.sprintDataGraph.ploteLines.stories
+
+            });
 
         },
 
@@ -453,6 +643,7 @@ if (typeof JiraHelper == 'undefined') {
                     }]
                 },
                 yAxis: {
+                    min: 0,
                     title: {
                         text: 'Points'
                     },
@@ -507,6 +698,7 @@ if (typeof JiraHelper == 'undefined') {
                     }]
                 },
                 yAxis: {
+                    min: 0,
                     title: {
                         text: 'Tasks'
                     },
@@ -574,6 +766,8 @@ if (typeof JiraHelper == 'undefined') {
         },
 
         createEventClick: function () {
+            
+            this.createEventClickStories();
 
             this.createEventClickPoints();
 
@@ -585,6 +779,39 @@ if (typeof JiraHelper == 'undefined') {
 
         },
 
+        createEventClickStories: function () {
+
+            var me = this;
+
+            $('#burndown-stories-toggle').html("Stories");
+
+            $('#burndown-stories-toggle').click(function (e) {
+
+                if (me.updating) return false;
+
+                if (me.chartStoriesIsVisible) {
+                    me.hideAllCharts();
+                    return false;
+                } else {
+                    me.hideAllCharts();
+                    var content = '<div id="chart_stories_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_stories">Carregando...</div>';
+
+                    $(this).showBalloon({
+                        position: "bottom",
+                        contents: content,
+                        className: "css_balloon"
+                    });
+                    me.showGraphHighChartStories("chart_stories");
+                    me.chartStoriesIsVisible = true;
+
+
+                    return false;
+
+                }
+            });
+
+        },
+        
         createEventClickPoints: function () {
 
             var me = this;
@@ -600,7 +827,7 @@ if (typeof JiraHelper == 'undefined') {
                     return false;
                 } else {
                     me.hideAllCharts();
-                    var content = '<div id="chart_points_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_points">Carregando...</div><div><a id="burndown-update" href="javascript:updateBurnDown()">Atualizar</a></div>';
+                    var content = '<div id="chart_points_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_points">Carregando...</div>';
 
                     $(this).showBalloon({
                         position: "bottom",
@@ -632,9 +859,7 @@ if (typeof JiraHelper == 'undefined') {
                     me.hideAllCharts();
                     return false;
                 } else {
-
                     me.hideAllCharts();
-
                     var content = '<div id="chart_tasks_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_tasks">Carregando...</div>';
                     $(this).showBalloon({
                         position: "bottom",
@@ -724,10 +949,12 @@ if (typeof JiraHelper == 'undefined') {
 
             var me = this;
 
+            me.chartStoriesIsVisible = false;
             me.chartPizzaIsVisible = false;
             me.chartPointsIsVisible = false;
             me.chartTasksIsVisible = false;
-
+            
+            $('#burndown-stories-toggle').hideBalloon();
             $('#burndown-tasks-toggle').hideBalloon();
             $('#burndown-points-toggle').hideBalloon();
             $('#burndown-pizza-toggle').hideBalloon();
@@ -785,6 +1012,15 @@ if (typeof JiraHelper == 'undefined') {
         closeBalloons: function () {
             $(".baLinkBalloonActivated").removeClass("baLinkBalloonActivated").hideBalloon();
         },
+
+        clone: function (obj) {
+            if (null == obj || "object" != typeof obj) return obj;
+            var copy = obj.constructor();
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+            }
+            return copy;
+        }
 
     }
 
