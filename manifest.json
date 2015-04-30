@@ -20,10 +20,7 @@
   "content_scripts": [
     {
       "js": [
-        "bower_components/jquery/jquery.min.js",
-        "js/jquery.balloon.min.js",
-        "bower_components/highcharts/highcharts.js",
-        "js/injectScript.js"
+        "dist/scripts/main.min.js"
       ],
       "css": [
         "css/inject.css"

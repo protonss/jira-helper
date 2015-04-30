@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         files: {
           "dist/scripts/main.min.js": [
             "bower_components/jquery/jquery.min.js",
-            "js/jquery.balloon.min.js",
+            "bower_components/jquery.balloon.js/jquery.balloon.min.js",
             "bower_components/highcharts/highcharts.js",
             "js/injectScript.js"
           ]
