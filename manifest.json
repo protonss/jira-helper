@@ -17,9 +17,9 @@
     "content_scripts": [
         {
             "js": [
-            "js/jquery.js",
+            "bower_components/jquery/jquery.min.js",
             "js/jquery.balloon.min.js",
-            "js/highcharts.js",
+            "bower_components/highcharts/highcharts.js",
             "js/injectScript.js"
          ],
             "css": ["css/inject.css"],

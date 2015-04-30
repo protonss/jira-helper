@@ -1,4 +1,8 @@
 {
   "name": "jira-helper",
-  "description": "There is a JIRA helper to view charts."
+  "description": "There is a JIRA helper to view charts.",
+  "dependencies": {
+    "jquery": "1.9.1",
+    "highcharts": "~4.1.5"
+  }
 }
