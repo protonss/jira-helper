@@ -592,7 +592,7 @@ if (typeof JiraHelper == 'undefined') {
                     plotBands: [{
                         color: '#fffa84',
                         from: 0,
-                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
                     }]
                 },
                 yAxis: {
@@ -647,7 +647,7 @@ if (typeof JiraHelper == 'undefined') {
                     plotBands: [{
                         color: '#fffa84',
                         from: 0,
-                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
                     }]
                 },
                 yAxis: {
@@ -702,7 +702,7 @@ if (typeof JiraHelper == 'undefined') {
                     plotBands: [{
                         color: '#fffa84',
                         from: 0,
-                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()) - 1)
+                        to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
                     }]
                 },
                 yAxis: {
