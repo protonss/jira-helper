@@ -6,16 +6,16 @@
   "description": "There is a JIRA helper to view charts.",
   "update_url": "https://clients2.google.com/service/update2/crx",
   "icons": {
-    "16": "styles/images/jira_icon_0.png",
-    "48": "styles/images/jira_icon_0.png",
-    "128": "styles/images/jira_icon_0.png"
+    "16": "styles/images/jira-16.png",
+    "48": "styles/images/jira-48.png",
+    "128": "styles/images/jira-128.png"
   },
   "permissions": [
     "http://*/*",
     "https://*/*"
   ],
   "web_accessible_resources": [
-    "styles/images/jira_icon_0.png"
+    "styles/images/*.png"
   ],
   "content_scripts": [{
     "js": [
