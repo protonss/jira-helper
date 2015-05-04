@@ -3,6 +3,17 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     package: grunt.file.readJSON("package.json"),
+    cssmin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: "src/css",
+          src: ["*.css", "!*.min.css"],
+          dest: "dist/css",
+          ext: ".min.css"
+        }]
+      }
+    },
     uglify: {
       dist: {
         files: {
@@ -10,7 +21,7 @@ module.exports = function(grunt) {
             "bower_components/jquery/jquery.min.js",
             "bower_components/jquery.balloon.js/jquery.balloon.min.js",
             "bower_components/highcharts/highcharts.js",
-            "js/injectScript.js"
+            "src/js/injectScript.js"
           ]
         }
       }
@@ -21,6 +32,7 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
 

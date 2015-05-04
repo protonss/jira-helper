@@ -805,7 +805,7 @@ if (typeof JiraHelper == 'undefined') {
                     $(this).showBalloon({
                         position: "bottom",
                         contents: content,
-                        className: "css_balloon"
+                        className: "css-balloon"
                     });
                     me.showGraphHighChartStories("chart_stories");
                     me.chartStoriesIsVisible = true;
@@ -836,7 +836,7 @@ if (typeof JiraHelper == 'undefined') {
                     $(this).showBalloon({
                         position: "bottom",
                         contents: content,
-                        className: "css_balloon"
+                        className: "css-balloon"
                     });
                     me.showGraphHighChartPoints("chart_points");
                     me.chartPointsIsVisible = true;
@@ -866,7 +866,7 @@ if (typeof JiraHelper == 'undefined') {
                     $(this).showBalloon({
                         position: "bottom",
                         contents: content,
-                        className: "css_balloon"
+                        className: "css-balloon"
                     });
 
                     me.showGraphHighChartTasks("chart_tasks");
@@ -901,7 +901,7 @@ if (typeof JiraHelper == 'undefined') {
                     $(this).showBalloon({
                         position: "bottom",
                         contents: content,
-                        className: "css_balloon"
+                        className: "css-balloon"
                     });
 
                     me.showGraphHighChartPizza("chart_pizza");

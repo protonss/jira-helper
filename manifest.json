@@ -1,21 +1,21 @@
 {
   "manifest_version": 2,
   "version": "1.2.0",
-  "name": "Jira Helper",
+  "name": "JIRA Helper",
   "short_name": "Jira Helper",
-  "description": "BurnDown e Gráfico de Pizza baseado em Tasks.",
+  "description": "There is a JIRA helper to view charts.",
   "update_url": "https://clients2.google.com/service/update2/crx",
   "icons": {
-    "16": "images/jira_icon_0.png",
-    "48": "images/jira_icon_0.png",
-    "128": "images/jira_icon_0.png"
+    "16": "src/images/jira_icon_0.png",
+    "48": "src/images/jira_icon_0.png",
+    "128": "src/images/jira_icon_0.png"
   },
   "permissions": [
     "http://*/*",
     "https://*/*"
   ],
   "web_accessible_resources": [
-    "images/jira_icon_0.png"
+    "src/images/jira_icon_0.png"
   ],
   "content_scripts": [
     {
@@ -23,7 +23,7 @@
         "dist/scripts/main.min.js"
       ],
       "css": [
-        "css/inject.css"
+        "dist/css/inject.min.css"
       ],
       "matches": [
         "*://*/*",

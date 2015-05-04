@@ -1,6 +1,6 @@
 {
   "name": "jira-helper",
-  "version": "0.0.0",
+  "version": "1.2.0",
   "description": "There is a JIRA helper to view charts.",
   "homepage": "https://github.com/protonss/jira-helper",
   "repository": {
@@ -10,6 +10,7 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-uglify": "^0.9.1",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-cssmin": "^0.12.2"
   }
 }
