@@ -30,6 +30,29 @@ module.exports = function(grunt) {
         }]
       }
     },
+    githooks: {
+      all: {
+        "pre-commit": "test"
+      }
+    },
+    jshint: {
+      options: {
+        jshintrc: ".jshintrc",
+        reporter: require("jshint-stylish")
+      },
+      files: {
+        src: [
+          "Gruntfile.js"
+        ]
+      }
+    },
+    shell: {
+      bower: {
+        command: function () {
+          return "bower install --allow-root";
+        }
+      }
+    },
     uglify: {
       options: {
         mangle: false,
@@ -67,6 +90,7 @@ module.exports = function(grunt) {
           "app/scripts/**/*.js"
         ],
         tasks: [
+          "jshint",
           "uglify"
         ]
       },
@@ -91,12 +115,16 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-copy");
+  grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-githooks");
+  grunt.loadNpmTasks("grunt-shell");
 
-  grunt.registerTask("install", ["build"]);
-  grunt.registerTask("build", ["copy", "cssmin", "uglify"]);
-  grunt.registerTask("run", ["watch"]);
-
+  grunt.registerTask("build", ["shell:bower", "copy", "jshint", "cssmin", "uglify"]);
   grunt.registerTask("default", ["install"]);
+  grunt.registerTask("install", ["build"]);
+  grunt.registerTask("run", ["watch"]);
+  grunt.registerTask("test", ["jshint"]);
+
 };
