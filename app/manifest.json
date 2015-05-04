@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "version": "1.2.0",
+  "name": "JIRA Helper",
+  "short_name": "Jira Helper",
+  "description": "There is a JIRA helper to view charts.",
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "icons": {
+    "16": "styles/images/jira_icon_0.png",
+    "48": "styles/images/jira_icon_0.png",
+    "128": "styles/images/jira_icon_0.png"
+  },
+  "permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources": [
+    "styles/images/jira_icon_0.png"
+  ],
+  "content_scripts": [{
+    "js": [
+      "scripts/main.min.js"
+    ],
+    "css": [
+      "styles/css/inject.min.css"
+    ],
+    "matches": [
+      "*://*/*",
+      "file://*/*"
+    ]
+  }],
+  "offline_enabled": false
+}

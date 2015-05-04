@@ -7,10 +7,26 @@ module.exports = function(grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: "src/css",
+          cwd: "app/styles/css",
           src: ["*.css", "!*.min.css"],
-          dest: "dist/css",
+          dest: "dist/styles/css",
           ext: ".min.css"
+        }]
+      }
+    },
+    copy: {
+      images: {
+        expand: true,
+        cwd: "app/styles/images/",
+        src: "**",
+        dest: "dist/styles/images/",
+        flatten: true,
+        filter: "isFile"
+      },
+      main: {
+        files: [{
+          src: "app/manifest.json",
+          dest: "dist/manifest.json"
         }]
       }
     },
@@ -21,9 +37,21 @@ module.exports = function(grunt) {
             "bower_components/jquery/jquery.min.js",
             "bower_components/jquery.balloon.js/jquery.balloon.min.js",
             "bower_components/highcharts/highcharts.js",
-            "src/js/injectScript.js"
+            "app/scripts/inject.js"
           ]
         }
+      }
+    },
+    replace: {
+      dist: {
+        src: [
+          "dist/*.json"
+        ],
+        overwrite: true,
+        replacements: [{
+          from: /src\//,
+          to: "dist/"
+        }]
       }
     },
     watch: {
@@ -33,8 +61,10 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks("grunt-contrib-cssmin");
+  grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-text-replace");
 
-  grunt.registerTask("default", ["uglify"]);
+  grunt.registerTask("default", ["cssmin", "uglify", "cssmin", "copy"]);
 };
