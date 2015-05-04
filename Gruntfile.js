@@ -3,6 +3,15 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     package: grunt.file.readJSON("package.json"),
+    asciify: {
+      options: {
+        font: "colossal",
+        log: true
+      },
+      logo: {
+        text: "JIRA Helper"
+      }
+    },
     cssmin: {
       dist: {
         files: [{
@@ -33,6 +42,16 @@ module.exports = function(grunt) {
     githooks: {
       all: {
         "pre-commit": "test"
+      }
+    },
+    imagemin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: "dist/styles/images/",
+          src: ["**/*.{png,jpg,gif}"],
+          dest: "dist/styles/images/"
+        }]
       }
     },
     jsbeautifier: {
@@ -138,9 +157,11 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks("grunt-asciify");
   grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks("grunt-contrib-imagemin");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-githooks");
@@ -155,7 +176,9 @@ module.exports = function(grunt) {
     "jsbeautifier",
     "jshint",
     "cssmin",
+    "newer:imagemin",
     "newer:uglify",
+    "asciify",
     "notify:build"
   ]);
 
