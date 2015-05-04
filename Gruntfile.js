@@ -12,6 +12,12 @@ module.exports = function(grunt) {
         text: "JIRA Helper"
       }
     },
+    clean: {
+      packages: ["node_modules", "bower_components"],
+      cache: ["dump.rdb", ".DS_Store"],
+      build: ["dist"],
+      log: ["npm-debug.log"]
+    },
     cssmin: {
       dist: {
         files: [{
@@ -158,6 +164,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks("grunt-asciify");
+  grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-contrib-jshint");
@@ -172,6 +179,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("build", [
     "shell:bower",
+    "clean:build",
     "copy",
     "jsbeautifier",
     "jshint",
