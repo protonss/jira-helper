@@ -31,7 +31,18 @@ module.exports = function(grunt) {
       }
     },
     uglify: {
+      options: {
+        mangle: false,
+        compress: {
+          drop_console: true
+        },
+        banner: "/*! <%= package.name %> - v<%= package.version %> */"
+      },
       dist: {
+        options: {
+          sourceMap: true,
+          sourceMapName: "dist/scripts/main.min.js.map"
+        },
         files: {
           "dist/scripts/main.min.js": [
             "bower_components/jquery/jquery.min.js",
@@ -40,18 +51,6 @@ module.exports = function(grunt) {
             "app/scripts/inject.js"
           ]
         }
-      }
-    },
-    replace: {
-      dist: {
-        src: [
-          "dist/*.json"
-        ],
-        overwrite: true,
-        replacements: [{
-          from: /src\//,
-          to: "dist/"
-        }]
       }
     },
     watch: {
@@ -64,7 +63,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.loadNpmTasks("grunt-text-replace");
 
   grunt.registerTask("default", ["cssmin", "uglify", "cssmin", "copy"]);
 };
