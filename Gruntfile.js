@@ -35,6 +35,17 @@ module.exports = function(grunt) {
         "pre-commit": "test"
       }
     },
+    jsbeautifier: {
+      options: {
+        config: ".jsbeautifyrc"
+      },
+      files: {
+        src: [
+          "Gruntfile.js",
+          "app/scripts/**/*.js"
+        ]
+      },
+    },
     jshint: {
       options: {
         jshintrc: ".jshintrc",
@@ -87,9 +98,11 @@ module.exports = function(grunt) {
       },
       js: {
         files: [
+          "Gruntfile.js",
           "app/scripts/**/*.js"
         ],
         tasks: [
+          "jsbeautifier",
           "jshint",
           "uglify"
         ]
@@ -101,14 +114,6 @@ module.exports = function(grunt) {
         tasks: [
           "cssmin"
         ]
-      },
-      grunt: {
-        files: [
-          "Gruntfile.js"
-        ],
-        tasks: [
-          "jshint"
-        ]
       }
     }
   });
@@ -119,9 +124,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-githooks");
+  grunt.loadNpmTasks("grunt-jsbeautifier");
   grunt.loadNpmTasks("grunt-shell");
 
-  grunt.registerTask("build", ["shell:bower", "copy", "jshint", "cssmin", "uglify"]);
+  grunt.registerTask("build", ["shell:bower", "copy", "jsbeautifier", "jshint", "cssmin", "uglify"]);
   grunt.registerTask("default", ["install"]);
   grunt.registerTask("install", ["build"]);
   grunt.registerTask("run", ["watch"]);
