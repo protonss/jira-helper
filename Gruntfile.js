@@ -54,8 +54,38 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: [],
-      tasks: []
+      json: {
+        files: [
+          "app/manifest.json"
+        ],
+        tasks: [
+          "copy"
+        ]
+      },
+      js: {
+        files: [
+          "app/scripts/**/*.js"
+        ],
+        tasks: [
+          "uglify"
+        ]
+      },
+      css: {
+        files: [
+          "app/styles/css"
+        ],
+        tasks: [
+          "cssmin"
+        ]
+      },
+      grunt: {
+        files: [
+          "Gruntfile.js"
+        ],
+        tasks: [
+          "jshint"
+        ]
+      }
     }
   });
 
@@ -64,5 +94,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
 
-  grunt.registerTask("default", ["cssmin", "uglify", "cssmin", "copy"]);
+  grunt.registerTask("install", ["build"]);
+  grunt.registerTask("build", ["copy", "cssmin", "uglify"]);
+  grunt.registerTask("run", ["watch"]);
+
+  grunt.registerTask("default", ["install"]);
 };
