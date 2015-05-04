@@ -57,9 +57,29 @@ module.exports = function(grunt) {
         ]
       }
     },
+    notify: {
+      install: {
+        options: {
+          title: "JIRA Helper",
+          message: "Installation completed successfully"
+        }
+      },
+      test: {
+        options: {
+          title: "JIRA Helper",
+          message: "Test has finished running"
+        }
+      },
+      build: {
+        options: {
+          title: "JIRA Helper",
+          message: "Build completed successfully"
+        }
+      }
+    },
     shell: {
       bower: {
-        command: function () {
+        command: function() {
           return "bower install --allow-root";
         }
       }
@@ -125,12 +145,23 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-githooks");
   grunt.loadNpmTasks("grunt-jsbeautifier");
+  grunt.loadNpmTasks("grunt-newer");
+  grunt.loadNpmTasks("grunt-notify");
   grunt.loadNpmTasks("grunt-shell");
 
-  grunt.registerTask("build", ["shell:bower", "copy", "jsbeautifier", "jshint", "cssmin", "uglify"]);
+  grunt.registerTask("build", [
+    "shell:bower",
+    "copy",
+    "jsbeautifier",
+    "jshint",
+    "cssmin",
+    "newer:uglify",
+    "notify:build"
+  ]);
+
   grunt.registerTask("default", ["install"]);
-  grunt.registerTask("install", ["build"]);
+  grunt.registerTask("install", ["build", "notify:install"]);
   grunt.registerTask("run", ["watch"]);
-  grunt.registerTask("test", ["jshint"]);
+  grunt.registerTask("test", ["jshint", "notify:test"]);
 
 };
