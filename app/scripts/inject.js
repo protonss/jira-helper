@@ -824,7 +824,7 @@ if (typeof JiraHelper == 'undefined') {
 
       var me = this;
 
-      $('#jirahelper-tasks-menu').click(function(e) {
+      $('#jirahelper-points-menu').click(function(e) {
 
         if (me.updating) return false;
 
@@ -856,7 +856,7 @@ if (typeof JiraHelper == 'undefined') {
 
       var me = this;
 
-      $('#jirahelper-points-menu').click(function(e) {
+      $('#jirahelper-tasks-menu').click(function(e) {
 
         if (me.updating) return false;
 
