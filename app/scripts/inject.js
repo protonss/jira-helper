@@ -1,4 +1,4 @@
-if (typeof JiraHelper == 'undefined') {
+if (typeof JiraHelper === "undefined") {
 
   var JiraHelper = {};
 
@@ -71,7 +71,7 @@ if (typeof JiraHelper == 'undefined') {
             return;
           }
           me.createSprintDataGraph(function(err) {
-            me.createEventClick();
+            me.createEvents();
           });
         });
 
@@ -364,15 +364,15 @@ if (typeof JiraHelper == 'undefined') {
       for (var r in resume) {
 
         dataResume.push([
-                resume[r].name, resume[r].percent
-                ]);
+          resume[r].name, resume[r].percent
+        ]);
 
       };
 
       var series = [{
         type: 'pie',
         data: dataResume
-            }];
+      }];
 
       return series;
 
@@ -594,7 +594,7 @@ if (typeof JiraHelper == 'undefined') {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -605,7 +605,7 @@ if (typeof JiraHelper == 'undefined') {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -649,7 +649,7 @@ if (typeof JiraHelper == 'undefined') {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -660,7 +660,7 @@ if (typeof JiraHelper == 'undefined') {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -704,7 +704,7 @@ if (typeof JiraHelper == 'undefined') {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -715,7 +715,7 @@ if (typeof JiraHelper == 'undefined') {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -774,7 +774,7 @@ if (typeof JiraHelper == 'undefined') {
 
     },
 
-    createEventClick: function() {
+    createEvents: function() {
 
       this.createEventClickStories();
 
@@ -785,6 +785,20 @@ if (typeof JiraHelper == 'undefined') {
       this.createEventClickPizza();
 
       this.createEventClickUpdate();
+
+      this.createTriggerMenu();
+
+    },
+
+    createTriggerMenu: function() {
+
+      var me = this;
+
+      $("#jirahelper-section-content").focusout(function() {
+
+        me.hideAllCharts();
+
+      });
 
     },
 
@@ -803,7 +817,7 @@ if (typeof JiraHelper == 'undefined') {
         else {
           me.hideAllCharts();
           var content =
-            '<div id="chart_stories_content"  style="position: relative;height: 400px;width: 600px;"><div id="chart_stories">Carregando...</div>';
+            '<div id="chart_stories_content" style="position: relative;height: 400px;width: 600px;"><div id="chart_stories">Carregando...</div>';
 
           $(this).showBalloon({
             position: "bottom",
@@ -967,10 +981,12 @@ if (typeof JiraHelper == 'undefined') {
 
   JiraHelper.Util = {
 
-    calculateDate: function(date1, date2) {
+    calculateDate: function(dateString1, date2) {
 
-      var d1 = new Date(date1);
-      var d2 = new Date(date2);
+      var date1 = new Date(dateString1);
+
+      var d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+      var d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
 
       var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
 

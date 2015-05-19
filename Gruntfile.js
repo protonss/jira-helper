@@ -119,7 +119,7 @@ module.exports = function(grunt) {
       },
       dist: {
         options: {
-          sourceMap: false,
+          sourceMap: true,
           sourceMapName: "dist/scripts/main.min.js.map"
         },
         files: {

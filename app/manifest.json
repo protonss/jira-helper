@@ -15,7 +15,9 @@
     "https://*/*"
   ],
   "web_accessible_resources": [
-    "styles/images/*.png"
+    "styles/images/*.png",
+    "scripts/main.min.js.map",
+    "scripts/inject.js"
   ],
   "content_scripts": [{
     "js": [
