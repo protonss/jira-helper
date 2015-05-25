@@ -212,7 +212,7 @@ if (typeof JiraHelper === "undefined") {
         return;
       }
 
-      var totalDates = JiraHelper.Util.calculateDate(sprintData.startDate, sprintData.endDate);
+      var totalDates = JiraHelper.Util.calculateDate(sprintData.startDate, sprintData.endDate) + 1;
       var initDate = new Date(sprintData.startDate);
 
       var categorieDate = [];
@@ -445,8 +445,10 @@ if (typeof JiraHelper === "undefined") {
               }
             });
 
-            storiesData[i].subtasks.push(tasksData[s]);
-            sprintData.tasks.push(tasksData[s]);
+            if (!(tasksData[s].done && (tasksData[s].resolutiondate < sprintData.startDate))) {
+              storiesData[i].subtasks.push(tasksData[s]);
+              sprintData.tasks.push(tasksData[s]);
+            }
 
           }
 
@@ -500,12 +502,17 @@ if (typeof JiraHelper === "undefined") {
         if (currentTask.resolutiondate) {
 
           var convertDate = new Date(currentTask.resolutiondate);
-          var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
 
-          if (paramDate == currentDate) {
+          if (convertDate > new Date(me.sprintData.startDate)) {
 
-            pointsDoneByDay += currentTask.estimate;
-            totalTasks++;
+            var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
+
+            if (paramDate == currentDate) {
+
+              pointsDoneByDay += currentTask.estimate;
+              totalTasks++;
+
+            }
 
           }
 
