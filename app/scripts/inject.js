@@ -155,7 +155,7 @@ if (typeof JiraHelper === "undefined") {
               typeId: s.typeId,
               statusName: s.statusName,
               statusId: s.statusId,
-              estimate: s.estimateStatistic.statFieldValue.value,
+              estimate: s.estimateStatistic.statFieldValue.value || 0,
               parentId: s.parentId || null,
               subtasks: [],
               created: null,
@@ -405,8 +405,10 @@ if (typeof JiraHelper === "undefined") {
       sprintData.totalEstimate = 0;
       sprintData.stories = storiesData;
       sprintData.tasks = [];
-      sprintData.startDate = new Date(Date.parse(sprintsData.startDate.split(" ")[0]));
-      sprintData.endDate = new Date(Date.parse(sprintsData.endDate.split(" ")[0]));
+      sprintData.startDate = JiraHelper.Util.createDateWithZeroTime(new Date(Date.parse(sprintsData.startDate.split(
+        " ")[0])));
+      sprintData.endDate = JiraHelper.Util.createDateWithZeroTime(new Date(Date.parse(sprintsData.endDate.split(" ")[
+        0])));
       sprintData.status = me.createStatus(data.columnsData.columns);
 
       for (var i in storiesData) {
@@ -420,7 +422,7 @@ if (typeof JiraHelper === "undefined") {
               storiesData[i].created = data.fields.created;
               storiesData[i].updated = data.fields.updated;
               if (data.fields.resolutiondate) {
-                storiesData[i].resolutiondate = data.fields.resolutiondate;
+                storiesData[i].resolutiondate = JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
               }
             }
           }
@@ -439,13 +441,16 @@ if (typeof JiraHelper === "undefined") {
                   tasksData[s].created = data.fields.created;
                   tasksData[s].updated = data.fields.updated;
                   if (data.fields.resolutiondate) {
-                    tasksData[s].resolutiondate = data.fields.resolutiondate;
+                    tasksData[s].resolutiondate = JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
+                  }
+                  else {
+                    tasksData[s].resolutiondate = JiraHelper.Util.createDateWithZeroTime(sprintData.startDate);
                   }
                 }
               }
             });
 
-            if (!(tasksData[s].done && (tasksData[s].resolutiondate < sprintData.startDate))) {
+            if (!(tasksData[s].done && (tasksData[s].resolutiondate <= sprintData.startDate))) {
               storiesData[i].subtasks.push(tasksData[s]);
               sprintData.tasks.push(tasksData[s]);
             }
@@ -493,7 +498,7 @@ if (typeof JiraHelper === "undefined") {
       var totalTasks = 0;
       var totalStories = 0;
 
-      var paramDate = initDate.getDate() + "/" + initDate.getMonth();
+      var paramDate = JiraHelper.Util.createDateWithZeroTime(initDate);
 
       for (var t in me.sprintData.tasks) {
 
@@ -501,18 +506,12 @@ if (typeof JiraHelper === "undefined") {
 
         if (currentTask.resolutiondate) {
 
-          var convertDate = new Date(currentTask.resolutiondate);
+          var resolutiondateTask = new Date(currentTask.resolutiondate);
 
-          if (convertDate > new Date(me.sprintData.startDate)) {
+          if (paramDate.toString() == resolutiondateTask.toString()) {
 
-            var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
-
-            if (paramDate == currentDate) {
-
-              pointsDoneByDay += currentTask.estimate;
-              totalTasks++;
-
-            }
+            pointsDoneByDay += currentTask.estimate || 0;
+            totalTasks++;
 
           }
 
@@ -526,12 +525,11 @@ if (typeof JiraHelper === "undefined") {
 
         if (currentStory.resolutiondate) {
 
-          var convertDate = new Date(currentStory.resolutiondate);
-          var currentDate = convertDate.getDate() + "/" + convertDate.getMonth();
+          var resolutiondateStory = new Date(currentStory.resolutiondate);
 
-          if (paramDate == currentDate) {
+          if (paramDate.toString() == resolutiondateStory.toString()) {
 
-            storyPointDoneByDay += currentStory.estimate;
+            storyPointDoneByDay += currentStory.estimate || 0;
             totalStories++;
 
           }
@@ -987,6 +985,11 @@ if (typeof JiraHelper === "undefined") {
   }
 
   JiraHelper.Util = {
+
+    createDateWithZeroTime: function(date) {
+      var d = new Date(date);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    },
 
     calculateDate: function(dateString1, date2) {
 

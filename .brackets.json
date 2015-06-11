@@ -4,6 +4,8 @@
         "/app/examples/jira-helper/js/injectScript.js",
         "/app/examples/jira-helper/bower_components/jquery/src/ajax/xhr.js",
         "/app/examples/jira-helper/bower_components/jquery/test/unit/traversing.js",
-        "/app/examples/jira-helper/Gruntfile.js"
+        "/app/examples/jira-helper/Gruntfile.js",
+        "/app/examples/jira-helper/bower_components/jquery/test/unit/serialize.js",
+        "/app/examples/jira-helper/dist/scripts/main.min.js"
     ]
 }
