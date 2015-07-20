@@ -205,6 +205,8 @@ if (typeof JiraHelper === "undefined") {
       var me = this;
       var sprintData = me.sprintData;
 
+      console.log(sprintData);
+
       me.sprintDataGraph = JiraHelper.Util.getValueFromLocalStorage(me.SPRINTDATA_GRAPH_CACHE_KEY + me.queryString.rapidView);
 
       if (me.sprintDataGraph) {
@@ -242,43 +244,45 @@ if (typeof JiraHelper === "undefined") {
 
       var _storiesDeal = sprintData.totalEstimate;
       var _storiesDone = sprintData.totalEstimate;
+      var sprintTotalDays = 0;
+      for (var d = 1; d < totalDates; d++) {
 
-      var dayOfSpring = totalDates;
-
+        initDate = new Date(initDate.setDate(initDate.getDate() + 1));
+        numericDay = initDate.getDay();
+        if ((numericDay != 6) && (numericDay != 0)) {
+          sprintTotalDays++;
+        }
+      }
+      var initDate = new Date(sprintData.startDate);
       for (var d = 1; d < totalDates; d++) {
 
         initDate = new Date(initDate.setDate(initDate.getDate() + 1));
 
-        //if (initDate.getDay() != 6 && initDate.getDay() != 0) {
-
         categorieDate.push(JiraHelper.Util.convertDateString(initDate));
+        var resumeDone = me.findTasksDoneByDay(initDate);
+        numericDay = initDate.getDay();
+        if ((numericDay != 6) && (numericDay != 0)) {
+          _pointsDeal = _pointsDeal - (_pointsDeal / sprintTotalDays) || 0;
 
-        dayOfSpring--;
+          _tasksDeal = _tasksDeal - (_tasksDeal / sprintTotalDays) || 0;
 
-        var resumeDone = me.findTasksDoneByDay(initDate)
+          _storiesDeal = _storiesDeal - (_storiesDeal / sprintTotalDays) || 0;
 
-        //By Points
-        _pointsDone -= resumeDone.taskPoints || 0;
-        seriePointsDone.data.push(_pointsDone.toFixed(2) * 1);
-
-        _pointsDeal = _pointsDeal - (_pointsDeal / dayOfSpring) || 0;
-        seriePointsDeal.data.push(_pointsDeal.toFixed(2) * 1);
-
+          sprintTotalDays--;
+        }
         //By Tasks
         _tasksDone -= resumeDone.totalTasks || 0;
-        serieTasksDone.data.push(_tasksDone.toFixed(2) * 1);
-
-        _tasksDeal = _tasksDeal - (_tasksDeal / dayOfSpring) || 0;
-        serieTasksDeal.data.push(Math.round(_tasksDeal));
-
-        //By Storie
+        //By Points
+        _pointsDone -= resumeDone.taskPoints || 0;
+        //By Stories
         _storiesDone -= resumeDone.storyPoints || 0;
+
+        seriePointsDone.data.push(_pointsDone.toFixed(2) * 1);
+        seriePointsDeal.data.push(_pointsDeal.toFixed(2) * 1);
+        serieTasksDone.data.push(_tasksDone.toFixed(2) * 1);
+        serieTasksDeal.data.push(Math.round(_tasksDeal));
         serieStoriesDone.data.push(_storiesDone.toFixed(2) * 1);
-
-        _storiesDeal = _storiesDeal - (_storiesDeal / dayOfSpring) || 0;
         serieStoriesDeal.data.push(Math.round(_storiesDeal));
-
-        //}
 
       }
 
@@ -994,6 +998,8 @@ if (typeof JiraHelper === "undefined") {
     calculateDate: function(dateString1, date2) {
 
       var date1 = new Date(dateString1);
+      if (typeof date2 === "string")
+        date2 = new Date(date2);
 
       var d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
       var d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
