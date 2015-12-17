@@ -44,6 +44,14 @@ grunt build
 grunt run
 ```
 
+### Release
+
+**Create an ZIP file for deploy**
+
+```
+grunt release
+```
+
 ### Test
 
 **Run unit tests:**
