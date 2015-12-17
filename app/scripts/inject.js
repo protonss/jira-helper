@@ -146,7 +146,7 @@ if (typeof JiraHelper === "undefined") {
 
           var s = issues[i];
 
-          if (s.typeId != "5") { //Type Storie
+          if (s.typeName == "Story") { //Type Storie
 
             storiesData.push({
               id: s.id,
@@ -368,15 +368,15 @@ if (typeof JiraHelper === "undefined") {
       for (var r in resume) {
 
         dataResume.push([
-          resume[r].name, resume[r].percent
-        ]);
+                    resume[r].name, resume[r].percent
+                ]);
 
       };
 
       var series = [{
         type: 'pie',
         data: dataResume
-      }];
+            }];
 
       return series;
 
@@ -603,7 +603,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -614,7 +614,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -658,7 +658,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -669,7 +669,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -713,7 +713,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -724,7 +724,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -1057,11 +1057,9 @@ if (typeof JiraHelper === "undefined") {
 
   }
 
-}
+};
 
-$(document).ready(function() {
-
+window.addEventListener('load', function() {
   var jr = new JiraHelper.BurnDown();
   jr.init();
-
-})
+});

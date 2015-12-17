@@ -52,6 +52,9 @@ module.exports = function(grunt) {
     },
     imagemin: {
       dist: {
+        options: {
+          cache: false
+        },
         files: [{
           expand: true,
           cwd: "dist/styles/images/",
@@ -111,7 +114,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        mangle: false,
+        mangle: true,
         compress: {
           drop_console: true
         },
