@@ -135,6 +135,21 @@ module.exports = function(grunt) {
         }
       }
     },
+    compress: {
+      main: {
+        options: {
+          archive: "<%= package.name %> - v<%= package.version %>.zip"
+        },
+        files: [
+          {
+            expand: true,
+            cwd: "dist/",
+            src: ["**"],
+            filter: "isFile"
+          }
+        ]
+      }
+    },
     watch: {
       json: {
         files: [
@@ -174,6 +189,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-imagemin");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-githooks");
   grunt.loadNpmTasks("grunt-jsbeautifier");
   grunt.loadNpmTasks("grunt-newer");
@@ -195,6 +211,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("default", ["install"]);
   grunt.registerTask("install", ["build", "notify:install"]);
+  grunt.registerTask("release", ["build", "compress"]);
   grunt.registerTask("run", ["watch"]);
   grunt.registerTask("test", ["jshint", "notify:test"]);
 
