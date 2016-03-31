@@ -114,7 +114,8 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        mangle: true,
+        beautify: false,
+        mangle: false,
         compress: {
           drop_console: true
         },
@@ -140,14 +141,12 @@ module.exports = function(grunt) {
         options: {
           archive: "<%= package.name %> - v<%= package.version %>.zip"
         },
-        files: [
-          {
-            expand: true,
-            cwd: "dist/",
-            src: ["**"],
-            filter: "isFile"
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: "dist/",
+          src: ["**"],
+          filter: "isFile"
+        }]
       }
     },
     watch: {

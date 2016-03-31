@@ -155,7 +155,7 @@ if (typeof JiraHelper === "undefined") {
               typeId: s.typeId,
               statusName: s.statusName,
               statusId: s.statusId,
-              estimate: s.estimateStatistic.statFieldValue.value || 0,
+              estimate: s.estimateStatistic.statFieldValue.value || 1,
               parentId: s.parentId || null,
               subtasks: [],
               created: null,
@@ -188,6 +188,8 @@ if (typeof JiraHelper === "undefined") {
         }
 
         me.sprintData = me.mergeSprintData(storiesData, tasksData, data);
+
+        me.sprintData.project = data.orderData.canRankPerProject[0] || {};
 
         //Create Resume per Status
         me.createResumeStatus();
@@ -245,6 +247,7 @@ if (typeof JiraHelper === "undefined") {
       var _storiesDeal = sprintData.totalEstimate;
       var _storiesDone = sprintData.totalEstimate;
       var sprintTotalDays = 0;
+
       for (var d = 1; d < totalDates; d++) {
 
         initDate = new Date(initDate.setDate(initDate.getDate() + 1));
@@ -253,15 +256,21 @@ if (typeof JiraHelper === "undefined") {
           sprintTotalDays++;
         }
       }
+
       var initDate = new Date(sprintData.startDate);
+
       for (var d = 1; d < totalDates; d++) {
 
         initDate = new Date(initDate.setDate(initDate.getDate() + 1));
 
         categorieDate.push(JiraHelper.Util.convertDateString(initDate));
+
         var resumeDone = me.findTasksDoneByDay(initDate);
+
         numericDay = initDate.getDay();
+
         if ((numericDay != 6) && (numericDay != 0)) {
+
           _pointsDeal = _pointsDeal - (_pointsDeal / sprintTotalDays) || 0;
 
           _tasksDeal = _tasksDeal - (_tasksDeal / sprintTotalDays) || 0;
@@ -269,7 +278,9 @@ if (typeof JiraHelper === "undefined") {
           _storiesDeal = _storiesDeal - (_storiesDeal / sprintTotalDays) || 0;
 
           sprintTotalDays--;
+
         }
+
         //By Tasks
         _tasksDone -= resumeDone.totalTasks || 0;
         //By Points
@@ -368,15 +379,15 @@ if (typeof JiraHelper === "undefined") {
       for (var r in resume) {
 
         dataResume.push([
-                    resume[r].name, resume[r].percent
-                ]);
+          resume[r].name, resume[r].percent
+        ]);
 
       };
 
       var series = [{
         type: 'pie',
         data: dataResume
-            }];
+      }];
 
       return series;
 
@@ -426,7 +437,9 @@ if (typeof JiraHelper === "undefined") {
               storiesData[i].created = data.fields.created;
               storiesData[i].updated = data.fields.updated;
               if (data.fields.resolutiondate) {
-                storiesData[i].resolutiondate = JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
+                storiesData[i].resolutiondate = sprintData.startDate >= data.fields.resolutiondate ?
+                  JiraHelper.Util.addDays(sprintData.startDate, 1) :
+                  JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
               }
             }
           }
@@ -445,7 +458,9 @@ if (typeof JiraHelper === "undefined") {
                   tasksData[s].created = data.fields.created;
                   tasksData[s].updated = data.fields.updated;
                   if (data.fields.resolutiondate) {
-                    tasksData[s].resolutiondate = JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
+                    tasksData[s].resolutiondate = sprintData.startDate >= data.fields.resolutiondate ?
+                      JiraHelper.Util.addDays(sprintData.startDate, 1) :
+                      JiraHelper.Util.createDateWithZeroTime(data.fields.resolutiondate);
                   }
                   else {
                     tasksData[s].resolutiondate = JiraHelper.Util.createDateWithZeroTime(sprintData.startDate);
@@ -454,10 +469,10 @@ if (typeof JiraHelper === "undefined") {
               }
             });
 
-            if (!(tasksData[s].done && (tasksData[s].resolutiondate <= sprintData.startDate))) {
-              storiesData[i].subtasks.push(tasksData[s]);
-              sprintData.tasks.push(tasksData[s]);
-            }
+            //if (!(tasksData[s].done && (tasksData[s].resolutiondate <= sprintData.startDate))) {
+            storiesData[i].subtasks.push(tasksData[s]);
+            sprintData.tasks.push(tasksData[s]);
+            //}
 
           }
 
@@ -571,6 +586,7 @@ if (typeof JiraHelper === "undefined") {
 
         resumeStatus.push({
           name: me.sprintData.status[s].name,
+          statusId: me.sprintData.status[s].id,
           estimate: estimateTotal.toFixed(2),
           percent: (estimateTotal.toFixed(2) / me.sprintData.totalEstimate) * 100
 
@@ -590,7 +606,7 @@ if (typeof JiraHelper === "undefined") {
 
       $("#" + elementName).highcharts({
         title: {
-          text: 'Story BurnDown',
+          text: 'Story BurnDown - ' + me.sprintData.sprintName,
           x: -20 //center
         },
         subtitle: {
@@ -603,7 +619,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -614,7 +630,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -645,7 +661,7 @@ if (typeof JiraHelper === "undefined") {
 
       $("#" + elementName).highcharts({
         title: {
-          text: 'Points BurnDown',
+          text: 'Points BurnDown - ' + me.sprintData.sprintName,
           x: -20 //center
         },
         subtitle: {
@@ -658,7 +674,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -669,7 +685,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -700,7 +716,7 @@ if (typeof JiraHelper === "undefined") {
 
       $("#" + elementName).highcharts({
         title: {
-          text: 'Tasks BurnDown',
+          text: 'Tasks BurnDown - ' + me.sprintData.sprintName,
           x: -20 //center
         },
         subtitle: {
@@ -713,7 +729,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-                    }]
+          }]
         },
         yAxis: {
           min: 0,
@@ -724,7 +740,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-                    }]
+          }]
         },
         plotOptions: {
           line: {
@@ -746,6 +762,28 @@ if (typeof JiraHelper === "undefined") {
         series: me.sprintDataGraph.ploteLines.tasks
 
       });
+
+    },
+
+    //https://brasilct.atlassian.net/issues/?jql=project+%3D+10001+AND+status+%3D+Done
+
+    eventClickPie: function(statusName) {
+
+      if (this.sprintData.project) {
+        var urlJql = this.URL_JIRA + JiraHelper.Util.format("/issues/?jql=project=%s+AND+status=%s",
+          this.sprintData.project.projectId, this.getStatusIdByName(statusName));
+        window.location = urlJql;
+      };
+
+    },
+
+    getStatusIdByName: function(statusName) {
+
+      for (var s in this.sprintData.status) {
+        if (statusName == this.sprintData.status[s].name) {
+          return this.sprintData.status[s].id;
+        }
+      }
 
     },
 
@@ -774,6 +812,13 @@ if (typeof JiraHelper === "undefined") {
               format: '<b>{point.name}</b>: {point.percentage:.1f} %',
               style: {
                 color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+              }
+            },
+            point: {
+              events: {
+                click: function() {
+                  me.eventClickPie(this.name);
+                }
               }
             }
           }
@@ -990,6 +1035,14 @@ if (typeof JiraHelper === "undefined") {
 
   JiraHelper.Util = {
 
+    format: function(str) {
+      var args = [].slice.call(arguments, 1),
+        i = 0;
+      return str.replace(/%s/g, function() {
+        return args[i++];
+      });
+    },
+
     createDateWithZeroTime: function(date) {
       var d = new Date(date);
       return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -1010,6 +1063,12 @@ if (typeof JiraHelper === "undefined") {
 
       return diffDays;
 
+    },
+
+    addDays: function(date, days) {
+      var result = new Date(date);
+      result.setDate(date.getDate() + days);
+      return result;
     },
 
     convertDateString: function(date) {
