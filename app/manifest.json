@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "1.2.3",
+  "version": "1.3.0",
   "name": "JIRA Helper",
   "short_name": "Jira Helper",
   "description": "There is a JIRA helper to view charts.",
