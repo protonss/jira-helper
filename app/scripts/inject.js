@@ -8,6 +8,7 @@ if (typeof JiraHelper === "undefined") {
 
     this.SPRINTDATA_CACHE_KEY = "sprintData_";
     this.SPRINTDATA_GRAPH_CACHE_KEY = "sprintDataGraph_";
+    this.ESTIMATE_STATISTIC_CUSTOMFIELD = "estimateStatisticCustomField";
     this.URL_JIRA = document.location.origin;
 
     $.balloon.defaults.css = {
@@ -139,6 +140,8 @@ if (typeof JiraHelper === "undefined") {
         var issues = data.issuesData.issues;
         var status = data.columnsData.columns;
 
+        me.discoverAndSaveEstimateCustomField(issues[0]);
+
         var storiesData = [],
           tasksData = [];
 
@@ -162,7 +165,7 @@ if (typeof JiraHelper === "undefined") {
               updated: null,
               resolutiondate: null
 
-            })
+            });
 
           }
           else {
@@ -200,6 +203,10 @@ if (typeof JiraHelper === "undefined") {
 
       })
 
+    },
+
+    discoverAndSaveEstimateCustomField: function(issueSample) {
+      JiraHelper.Util.saveValueToLocalStorage(me.ESTIMATE_STATISTIC_CUSTOMFIELD, issueSample.estimateStatistic.statFieldId);
     },
 
     createSprintDataGraph: function(callback) {
@@ -1083,7 +1090,7 @@ if (typeof JiraHelper === "undefined") {
     getValueFromLocalStorage: function(key) {
       var value = null;
 
-      if (localStorage[key]) {
+      if (localStorage["jirahelper." + key]) {
         value = JSON.parse(localStorage[key]);
       }
 
@@ -1092,7 +1099,7 @@ if (typeof JiraHelper === "undefined") {
     },
 
     saveValueToLocalStorage: function(key, data) {
-      localStorage[key] = JSON.stringify(data);
+      localStorage["jirahelper." + key] = JSON.stringify(data);
     },
 
     resetLocalStorage: function(key) {
