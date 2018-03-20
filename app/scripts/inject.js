@@ -140,7 +140,7 @@ if (typeof JiraHelper === "undefined") {
         var issues = data.issuesData.issues;
         var status = data.columnsData.columns;
 
-        me.discoverAndSaveEstimateCustomField(issues[0]);
+        me.estimateStatisticCustomField = me.discoverAndSaveEstimateCustomField(issues[0]);
 
         var storiesData = [],
           tasksData = [];
@@ -205,8 +205,10 @@ if (typeof JiraHelper === "undefined") {
 
     },
 
-    discoverAndSaveEstimateCustomField: function(issueSample) {
-      JiraHelper.Util.saveValueToLocalStorage(me.ESTIMATE_STATISTIC_CUSTOMFIELD, issueSample.estimateStatistic.statFieldId);
+    discoverAndSaveEstimateCustomField: function(issue) {
+      var me = this;
+      JiraHelper.Util.saveStringValueToLocalStorage(me.ESTIMATE_STATISTIC_CUSTOMFIELD, issue.estimateStatistic.statFieldId);
+      return issue.estimateStatistic.statFieldId;
     },
 
     createSprintDataGraph: function(callback) {
@@ -386,15 +388,15 @@ if (typeof JiraHelper === "undefined") {
       for (var r in resume) {
 
         dataResume.push([
-          resume[r].name, resume[r].percent
-        ]);
+                    resume[r].name, resume[r].percent
+                ]);
 
       };
 
       var series = [{
         type: 'pie',
         data: dataResume
-      }];
+            }];
 
       return series;
 
@@ -437,7 +439,8 @@ if (typeof JiraHelper === "undefined") {
 
         $.ajax({
           url: me.URL_JIRA + "/rest/api/2/issue/" + storiesData[i].id +
-            "?fields=created,updated,parent,resolutiondate,customfield_10008,summary,status",
+            "?fields=created,updated,parent,resolutiondate," + me.estimateStatisticCustomField +
+            ",summary,status",
           async: false,
           success: function(data) {
             if (data) {
@@ -458,7 +461,8 @@ if (typeof JiraHelper === "undefined") {
 
             $.ajax({
               url: me.URL_JIRA + "/rest/api/2/issue/" + tasksData[s].id +
-                "?fields=created,updated,parent,resolutiondate,customfield_10008,summary,status",
+                "?fields=created,updated,parent,resolutiondate," + me.estimateStatisticCustomField +
+                ",summary,status",
               async: false,
               success: function(data) {
                 if (data) {
@@ -626,7 +630,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -637,7 +641,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -681,7 +685,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -692,7 +696,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -736,7 +740,7 @@ if (typeof JiraHelper === "undefined") {
             color: '#fffa84',
             from: 0,
             to: (JiraHelper.Util.calculateDate(me.sprintData.startDate, new Date()))
-          }]
+                    }]
         },
         yAxis: {
           min: 0,
@@ -747,7 +751,7 @@ if (typeof JiraHelper === "undefined") {
             value: 0,
             width: 1,
             color: '#808080'
-          }]
+                    }]
         },
         plotOptions: {
           line: {
@@ -1091,11 +1095,26 @@ if (typeof JiraHelper === "undefined") {
       var value = null;
 
       if (localStorage["jirahelper." + key]) {
-        value = JSON.parse(localStorage[key]);
+        value = JSON.parse(localStorage["jirahelper." + key]);
       }
 
       return value;
 
+    },
+
+    getStringValueFromLocalStorage: function(key) {
+      var value = null;
+
+      if (localStorage["jirahelper." + key]) {
+        value = localStorage["jirahelper." + key];
+      }
+
+      return value;
+
+    },
+
+    saveStringValueToLocalStorage: function(key, string) {
+      localStorage["jirahelper." + key] = string;
     },
 
     saveValueToLocalStorage: function(key, data) {
